@@ -54,6 +54,9 @@ https://encurtaai-5q3b.onrender.com
 https://encurtaai-5q3b.onrender.com/swagger
 ```
 
+> **Note:** This API is hosted on Render's free instance. After 15 minutes without incoming traffic, the service spins down. The first request after
+> inactivity may take around a minute while the service starts up again.
+
 ## Features
 
 * JWT-based authentication for protected operations
