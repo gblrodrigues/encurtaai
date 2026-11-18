@@ -5,8 +5,11 @@ import com.gblrod.encurtaai.config.PaginationProperties
 import com.gblrod.encurtaai.dto.*
 import com.gblrod.encurtaai.entity.Link
 import com.gblrod.encurtaai.exception.LinkNotFoundException
+import com.gblrod.encurtaai.exception.LinkRecoveryExpiredException
 import com.gblrod.encurtaai.exception.ShortCodeAlreadyExistsException
 import com.gblrod.encurtaai.mapper.toResponse
+import com.gblrod.encurtaai.mapper.toTrashResponse
+import com.gblrod.encurtaai.policy.LinkRecoveryPolicy
 import com.gblrod.encurtaai.repository.LinkRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -45,7 +48,7 @@ class LinkService(
     }
 
     fun findEntityByCode(code: String): Link {
-        return repository.findByShortCode(code) ?: throw LinkNotFoundException(code = code)
+        return repository.findByShortCodeAndDeletedAtIsNull(code) ?: throw LinkNotFoundException(code = code)
     }
 
     fun findByCode(code: String): LinkResponseDto {
@@ -57,7 +60,7 @@ class LinkService(
         val currentSize = (size ?: paginationProperties.defaultSize).coerceIn(1, paginationProperties.maxSize)
         val currentSort = sort ?: "${paginationProperties.defaultSort},${paginationProperties.defaultDirection}"
 
-        val result = repository.findAll(createPageable(currentPage, currentSize, currentSort))
+        val result = repository.findAllByDeletedAtIsNull(createPageable(currentPage, currentSize, currentSort))
 
         return PageResponseDto(
             data = result.content.map { it.toResponse(appProperties.baseUrl) },
@@ -84,10 +87,44 @@ class LinkService(
         return saved.toResponse(appProperties.baseUrl)
     }
 
+    @Transactional
     fun delete(code: String) {
         val link = findEntityByCode(code)
 
-        repository.delete(link)
+        link.deletedAt = OffsetDateTime.now()
+        repository.save(link)
+    }
+
+    fun findTrash(page: Int?, size: Int?, sort: String?): PageResponseDto<TrashLinkResponseDto> {
+        val currentPage = page ?: 0
+        val currentSize = (size ?: paginationProperties.defaultSize).coerceIn(1, paginationProperties.maxSize)
+        val currentSort = sort ?: "${paginationProperties.defaultSort},${paginationProperties.defaultDirection}"
+        val result = repository.findAllByDeletedAtIsNotNull(createPageable(currentPage, currentSize, currentSort))
+
+        return PageResponseDto(
+            data = result.content.map { it.toTrashResponse(appProperties.baseUrl) },
+            pagination = PaginationDto(
+                page = result.number,
+                size = result.size,
+                totalItems = result.totalElements,
+                totalPages = result.totalPages
+            )
+        )
+    }
+
+    @Transactional
+    fun restore(code: String): LinkResponseDto {
+        val link = repository.findByShortCodeAndDeletedAtIsNotNull(shortCode = code)?: throw LinkNotFoundException(code = code)
+        val deletedAt = requireNotNull(link.deletedAt)
+        val recoveryDeadline = deletedAt.plusDays(LinkRecoveryPolicy.RETENTION_PERIOD_DAYS)
+
+        if (!OffsetDateTime.now().isBefore(recoveryDeadline)) {
+            throw LinkRecoveryExpiredException(code)
+        }
+
+        link.deletedAt = null
+        val restored = repository.save(link)
+        return restored.toResponse(baseUrl = appProperties.baseUrl)
     }
 
     @Transactional

@@ -3,7 +3,9 @@ package com.gblrod.encurtaai.controller
 import com.gblrod.encurtaai.dto.CreateLinkRequestDto
 import com.gblrod.encurtaai.dto.LinkResponseDto
 import com.gblrod.encurtaai.dto.PageResponseDto
+import com.gblrod.encurtaai.dto.TrashLinkResponseDto
 import com.gblrod.encurtaai.dto.UpdateLinkRequestDto
+import com.gblrod.encurtaai.policy.LinkRecoveryPolicy
 import com.gblrod.encurtaai.service.LinkService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -57,6 +59,7 @@ class LinkController(
                 responseCode = "401",
                 ref = "#/components/responses/Unauthorized"
             ),
+            
             ApiResponse(
                 responseCode = "409",
                 ref = "#/components/responses/Conflict"
@@ -146,6 +149,51 @@ class LinkController(
     }
 
     @Operation(
+        summary = "List deleted shortened URLs",
+        description = """
+        Returns a paginated list of deleted shortened URLs.
+
+        Links remain available for recovery during the ${LinkRecoveryPolicy.RETENTION_PERIOD_DAYS} days retention period.
+
+        Requires administrator authentication.
+    """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Paginated list of deleted shortened URLs.",
+                useReturnTypeSchema = true
+            ),
+            ApiResponse(
+                responseCode = "401",
+                ref = "#/components/responses/Unauthorized"
+            ),
+            
+            ApiResponse(
+                responseCode = "429",
+                ref = "#/components/responses/TooManyRequests"
+            ),
+            ApiResponse(
+                responseCode = "500",
+                ref = "#/components/responses/InternalServerError"
+            )
+        ]
+    )
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/trash")
+    fun findTrash(
+        @RequestParam(required = false)
+        page: Int?,
+        @RequestParam(required = false)
+        size: Int?,
+        @RequestParam(required = false)
+        sort: String?
+    ): PageResponseDto<TrashLinkResponseDto> {
+        return service.findTrash(page, size, sort)
+    }
+
+    @Operation(
         summary = "Get link details by short code",
         description = """
             Retrieves the details of a shortened URL using its short code.
@@ -228,6 +276,7 @@ class LinkController(
                 responseCode = "401",
                 ref = "#/components/responses/Unauthorized"
             ),
+            
             ApiResponse(
                 responseCode = "404",
                 ref = "#/components/responses/NotFound"
@@ -261,9 +310,68 @@ class LinkController(
     }
 
     @Operation(
+        summary = "Restore a deleted shortened URL",
+        description = """
+        Restores a previously deleted shortened URL.
+
+        The original URL and short code are preserved.
+        Restoration is only available within the ${LinkRecoveryPolicy.RETENTION_PERIOD_DAYS} days recovery period.
+
+        Requires administrator authentication.
+    """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Shortened URL restored successfully.",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = LinkResponseDto::class)
+                    )
+                ]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                ref = "#/components/responses/Unauthorized"
+            ),
+            
+            ApiResponse(
+                responseCode = "404",
+                ref = "#/components/responses/NotFound"
+            ),
+            ApiResponse(
+                responseCode = "410",
+                description = "The ${LinkRecoveryPolicy.RETENTION_PERIOD_DAYS} days recovery period has expired."
+            ),
+            ApiResponse(
+                responseCode = "429",
+                ref = "#/components/responses/TooManyRequests"
+            ),
+            ApiResponse(
+                responseCode = "500",
+                ref = "#/components/responses/InternalServerError"
+            )
+        ]
+    )
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PostMapping("/{code}/restore")
+    fun restore(
+        @Parameter(
+            description = "Short code identifying the deleted link.",
+            example = "my-linkedin",
+            required = true
+        )
+        @PathVariable code: String
+    ): LinkResponseDto {
+        return service.restore(code)
+    }
+
+    @Operation(
         summary = "Delete a shortened URL",
         description = """
-            Deletes an existing shortened URL identified by its current short code.
+            Moves an existing shortened URL to the trash, identified by its current short code.
 
             Returns HTTP 204 No Content when the deletion succeeds.
 
@@ -280,6 +388,7 @@ class LinkController(
                 responseCode = "401",
                 ref = "#/components/responses/Unauthorized"
             ),
+            
             ApiResponse(
                 responseCode = "404",
                 ref = "#/components/responses/NotFound"
@@ -299,7 +408,7 @@ class LinkController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(
         @Parameter(
-            description = "Short code identifying the link to delete.",
+            description = "Short code identifying the link to trash.",
             example = "my-linkedin",
             required = true
         )

@@ -43,11 +43,18 @@ class SecurityConfig(
 
                 it.requestMatchers(
                     HttpMethod.GET,
+                    "/api/v1/links/trash"
+                ).hasRole("ADMIN")
+
+                it.requestMatchers(
+                    HttpMethod.GET,
                     "/api/v1/links",
                     "/api/v1/links/*"
                 ).permitAll()
 
                 it.requestMatchers(HttpMethod.GET, "/*").permitAll()
+
+                it.requestMatchers(HttpMethod.POST, "/api/v1/links/*/restore").hasRole("ADMIN")
 
                 it.anyRequest().authenticated()
             }
