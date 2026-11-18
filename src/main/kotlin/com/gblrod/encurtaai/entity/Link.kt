@@ -28,5 +28,8 @@ class Link(
     var accessCount: Long = 0,
 
     @Column
-    var lastAccessedAt: OffsetDateTime? = null
+    var lastAccessedAt: OffsetDateTime? = null,
+
+    @Column(name = "deleted_at")
+    var deletedAt: OffsetDateTime? = null
 )

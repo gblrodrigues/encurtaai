@@ -1,0 +1,2 @@
+ALTER TABLE links
+    ADD COLUMN deleted_at TIMESTAMPTZ;

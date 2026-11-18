@@ -24,20 +24,20 @@ create, customize and manage shortened URLs through JWT authentication while pro
 
 ## Technologies Used
 
-| Category | Technology | Why |
-|----------|------------|-----|
-Language | [![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org/) | Main development language (my favorite 💜)
-Framework | [![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot) | REST API framework
-Persistence | [![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=flat&logo=spring&logoColor=white)](https://spring.io/projects/spring-data-jpa) | ORM and database access
-Database | [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/) | Persistent data storage
-Database Migrations | [![Flyway](https://img.shields.io/badge/Flyway-CC0200?style=flat&logo=flyway&logoColor=white)](https://documentation.red-gate.com/flyway/) | Versioned database schema
-Testing | [![JUnit 5](https://img.shields.io/badge/JUnit-5-25A162?style=flat&logo=junit5&logoColor=white)](https://junit.org/junit5/) [![Mockito](https://img.shields.io/badge/Mockito-78A641?style=flat)](https://site.mockito.org/) | Unit testing and HTTP security integration testing
-Validation | [![Bean Validation](https://img.shields.io/badge/Bean_Validation-2496ED?style=flat)](https://beanvalidation.org/) | Request validation
-Documentation UI | [![Swagger UI](https://img.shields.io/badge/Swagger_UI-85EA2D?style=flat&logo=swagger&logoColor=black)](https://swagger.io/tools/swagger-ui/) | Interactive API documentation
-Build System | [![Gradle Kotlin DSL](https://img.shields.io/badge/Gradle-Kotlin_DSL-02303A?style=flat&logo=gradle&logoColor=white)](https://gradle.org/) | Build automation
-Containers | [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/) | Containerized application and local development
-Deployment | [![Render](https://img.shields.io/badge/Render-black?style=flat&logo=render&logoColor=46E3B7)](https://render.com) | Cloud hosting and application deployment
-Rate Limiting | [![Bucket4j](https://img.shields.io/badge/Bucket4j-8A2BE2?style=flat)](https://github.com/bucket4j/bucket4j) | Per IP request rate limiting
+| Category            | Technology                                                                                                                                                                                                                  | Why                                                |
+|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
+| Language            | [![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org/)                                                                                                     | Main development language (my favorite 💜)         |
+| Framework           | [![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)                                                                        | REST API framework                                 |
+| Persistence         | [![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=flat&logo=spring&logoColor=white)](https://spring.io/projects/spring-data-jpa)                                                                | ORM and database access                            |
+| Database            | [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)                                                                                     | Persistent data storage                            |
+| Database Migrations | [![Flyway](https://img.shields.io/badge/Flyway-CC0200?style=flat&logo=flyway&logoColor=white)](https://documentation.red-gate.com/flyway/)                                                                                  | Versioned database schema                          |
+| Testing             | [![JUnit 5](https://img.shields.io/badge/JUnit-5-25A162?style=flat&logo=junit5&logoColor=white)](https://junit.org/junit5/) [![Mockito](https://img.shields.io/badge/Mockito-78A641?style=flat)](https://site.mockito.org/) | Unit testing and HTTP security integration testing |
+| Validation          | [![Bean Validation](https://img.shields.io/badge/Bean_Validation-2496ED?style=flat)](https://beanvalidation.org/)                                                                                                           | Request validation                                 |
+| Documentation UI    | [![Swagger UI](https://img.shields.io/badge/Swagger_UI-85EA2D?style=flat&logo=swagger&logoColor=black)](https://swagger.io/tools/swagger-ui/)                                                                               | Interactive API documentation                      |
+| Build System        | [![Gradle Kotlin DSL](https://img.shields.io/badge/Gradle-Kotlin_DSL-02303A?style=flat&logo=gradle&logoColor=white)](https://gradle.org/)                                                                                   | Build automation                                   |
+| Containers          | [![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)                                                                                                     | Containerized application and local development    |
+| Deployment          | [![Render](https://img.shields.io/badge/Render-black?style=flat&logo=render&logoColor=46E3B7)](https://render.com)                                                                                                          | Cloud hosting and application deployment           |
+| Rate Limiting       | [![Bucket4j](https://img.shields.io/badge/Bucket4j-8A2BE2?style=flat)](https://github.com/bucket4j/bucket4j)                                                                                                                | Per IP request rate limiting                       |
 
 ## Live API
 The API is publicly available on Render.
@@ -59,17 +59,15 @@ https://encurtaai-5q3b.onrender.com/swagger
 
 ## Features
 
-* JWT-based authentication for protected operations
-* Admin-only access for creating, updating and deleting links
-* Per-IP rate limiting (500 requests/hour) with Bucket4j
-* Public redirect access using generated short codes
-* Public link retrieval by short code
+* JWT-based authentication and admin-only access for protected operations
+* Public URL redirection and link retrieval by short code
 * Public paginated link listing
-* Custom short codes support
-* Automatic unique short code generation
+* Custom short codes and automatic unique short code generation
+* Link recovery with a 30 days retention period and paginated trash
+* Automatic permanent deletion of expired links using Spring Scheduler
+* Per-IP rate limiting (500 requests/hour) with Bucket4j
 * Access count and last access timestamp tracking
-* Request validation
-* Standardized error responses
+* Request validation and standardized error responses
 * OpenAPI documentation with Swagger UI
 * Database migrations with Flyway
 
@@ -179,25 +177,29 @@ https://encurtaai-5q3b.onrender.com/swagger
 
 ## API Endpoints
 
-| Method | Endpoint | Access | Description |
-|----------|------------|-----|-----|
-POST | `/api/v1/links` | Admin | Create a shortened URL
-GET | `/api/v1/links` | Public | List all links
-GET | `/api/v1/links/{code}` | Public | Retrieve a link by short code
-PUT | `/api/v1/links/{code}` | Admin | Update a link
-DELETE | `/api/v1/links/{code}` | Admin | Delete a link
-GET | `/{code}` | Public | Redirect to the original URL
-POST | `/api/v1/auth/login` | Public | Authenticate administrator and generate JWT token
+| Method | Endpoint                       | Access | Description                                              |
+|--------|--------------------------------|--------|----------------------------------------------------------|
+| POST   | `/api/v1/links`                | Admin  | Create a shortened URL                                   |
+| GET    | `/api/v1/links`                | Public | List all active links                                    |
+| GET    | `/api/v1/links/{code}`         | Public | Retrieve an active link by short code                    |
+| GET    | `/api/v1/links/trash`          | Admin  | List deleted links with pagination                       |
+| POST   | `/api/v1/links/{code}/restore` | Admin  | Restore a deleted link within the 30-day recovery period |
+| PUT    | `/api/v1/links/{code}`         | Admin  | Update a link                                            |
+| DELETE | `/api/v1/links/{code}`         | Admin  | Move a link to the trash                                 |
+| GET    | `/{code}`                      | Public | Redirect to the original URL                             |
+| POST   | `/api/v1/auth/login`           | Public | Authenticate administrator and generate JWT token        |
 
 ### Pagination
 
 `GET /api/v1/links` supports the following query parameters:
 
-| Parameter | Default | Description |
-|----------|------------|-----|
-`page` | `0` | Page index (zero-based)
-`size` | `25` | Number of items per page (maximum: 200)
-`sort` | `createdAt,desc` | Sort field and direction
+| Parameter | Default          | Description                             |
+|-----------|------------------|-----------------------------------------|
+| `page`    | `0`              | Page index (zero-based)                 |
+| `size`    | `25`             | Number of items per page (maximum: 200) |
+| `sort`    | `createdAt,desc` | Sort field and direction                |
+
+> The trash endpoint (`GET /api/v1/links/trash`) supports the same pagination parameters and defaults.
 
 ## Example Requests and Responses
 
@@ -255,16 +257,16 @@ Response
       "originalUrl": "https://developer.android.com/",
       "shortCode": "HmgbZB",
       "shortUrl": "https://encurtaai-5q3b.onrender.com/HmgbZB",
-      "accessCount": 0,
-      "lastAccessedAt": null
+      "accessCount": 1,
+      "lastAccessedAt": "2026-10-17T22:50:18.603548Z"
     },
     {
       "id": 3,
       "originalUrl": "https://github.com/gblrodrigues",
       "shortCode": "my-github",
       "shortUrl": "https://encurtaai-5q3b.onrender.com/my-github",
-      "accessCount": 4,
-      "lastAccessedAt": "2026-10-16T00:28:17.701972Z"
+      "accessCount": 20,
+      "lastAccessedAt": "2026-11-18T07:57:51.327009Z"
     },
     {
       "id": 2,
@@ -279,14 +281,37 @@ Response
       "originalUrl": "https://www.linkedin.com/in/gblrodrigues/",
       "shortCode": "my-linkedin",
       "shortUrl": "https://encurtaai-5q3b.onrender.com/my-linkedin",
-      "accessCount": 19,
-      "lastAccessedAt": "2026-10-17T19:19:11.548853Z"
+      "accessCount": 22,
+      "lastAccessedAt": "2026-10-18T14:46:35.913621Z"
     }
   ],
   "pagination": {
     "page": 0,
     "size": 25,
     "totalItems": 4,
+    "totalPages": 1
+  }
+}
+```
+
+**GET /api/v1/links/trash**
+```json
+{
+  "data": [
+    {
+      "id": 3,
+      "originalUrl": "https://github.com/gblrodrigues",
+      "shortCode": "my-github",
+      "shortUrl": "https://encurtaai-5q3b.onrender.com/my-github",
+      "accessCount": 20,
+      "lastAccessedAt": "2026-11-18T07:57:51.327009Z",
+      "deletedAt": "2026-11-18T08:00:00.327009Z"
+    }
+  ],
+  "pagination": {
+    "page": 0,
+    "size": 25,
+    "totalItems": 1,
     "totalPages": 1
   }
 }
@@ -313,9 +338,9 @@ Response:
 All requests are protected by a per-IP rate limiter powered by [Bucket4j](https://github.com/bucket4j/bucket4j).
 Each client IP has its own independent bucket with a limit of 500 requests per hour.
 
-| Limit | Window |
-|----------|------------|
-500 requests | 1 hour
+| Limit        | Window |
+|--------------|--------|
+| 500 requests | 1 hour |
 
 When the limit is exceeded, the API returns:
 
@@ -348,7 +373,9 @@ src/
 │   │   ├── entity/
 │   │   ├── exception/
 │   │   ├── mapper/
+│   │   ├── policy/
 │   │   ├── repository/
+│   │   ├── scheduler/
 │   │   ├── security/
 │   │   ├── service/
 │   │   └── EncurtaaiApplication.kt
@@ -383,9 +410,19 @@ Repositories (Spring Data JPA)
    ↓
 PostgreSQL
 
+Scheduled Cleanup:
+Spring Scheduler
+   ↓
+LinkCleanupService
+   ↓
+LinkRepository
+   ↓
+PostgreSQL
+
 Validation: Bean Validation
 Rate limiting: Bucket4j (per IP)
 Security: Spring Security + JWT
+Background jobs: Spring Scheduling
 Documentation: OpenAPI / Swagger
 Database migrations: Flyway
 ```

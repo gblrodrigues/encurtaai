@@ -1,6 +1,7 @@
 package com.gblrod.encurtaai.exception
 
 import com.gblrod.encurtaai.dto.ErrorResponseDto
+import com.gblrod.encurtaai.policy.LinkRecoveryPolicy
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -23,6 +24,18 @@ class GlobalExceptionHandler {
         return buildErrorResponse(
             status = HttpStatus.NOT_FOUND,
             message = exception.message ?: "Link not found.",
+            path = request.requestURI
+        )
+    }
+
+    @ExceptionHandler(LinkRecoveryExpiredException::class)
+    fun handleLinkRecoveryExpired(
+        exception: LinkRecoveryExpiredException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponseDto> {
+        return buildErrorResponse(
+            status = HttpStatus.GONE,
+            message = exception.message ?: "${LinkRecoveryPolicy.RETENTION_PERIOD_DAYS} days recovery period expired.",
             path = request.requestURI
         )
     }
