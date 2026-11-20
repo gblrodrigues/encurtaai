@@ -1,6 +1,7 @@
 package com.gblrod.encurtaai.config
 
 import com.gblrod.encurtaai.dto.ErrorResponseDto
+import com.gblrod.encurtaai.policy.LinkRecoveryPolicy
 import io.swagger.v3.core.converter.ModelConverters
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
@@ -11,12 +12,15 @@ import io.swagger.v3.oas.models.media.MediaType
 import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.security.SecurityScheme
+import org.springframework.boot.info.BuildProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 
 @Configuration
-class OpenApiConfig {
+class OpenApiConfig(
+    private val buildProperties: BuildProperties
+) {
     @Bean
     fun customOpenApi(): OpenAPI {
         return OpenAPI()
@@ -25,23 +29,26 @@ class OpenApiConfig {
                     .title("EncurtaAi API")
                     .description(
                         """
-                        REST API for creating, managing and accessing shortened URLs.
+                            REST API for creating, managing and accessing shortened URLs.
 
-                        Public features:
-                        * Retrieve shortened URLs
-                        * Search links by short code
-                        * Redirect using generated short codes
-
-                        Administrative features:
-                        * Create shortened URLs
-                        * Update existing URLs
-                        * Delete shortened URLs
-
-                        Authentication:
-                        * JWT-based authentication for administrative operations
+                            Public features:
+                            * Retrieve active shortened URLs
+                            * Search links by short code
+                            * Redirect using generated short codes
+                        
+                            Administrative features:
+                            * Create and update shortened URLs
+                            * Move shortened URLs to the trash
+                            * List deleted URLs and restore them within ${LinkRecoveryPolicy.RETENTION_PERIOD_DAYS} days
+                        
+                            Link recovery:
+                            * Automatically remove expired links using scheduled cleanup
+                        
+                            Authentication:
+                            * JWT-based authentication for administrative operations
                         """.trimIndent()
                     )
-                    .version("1.1.0")
+                    .version(buildProperties.version)
                     .contact(
                         Contact()
                             .name("Gabriel Rodrigues")
@@ -100,6 +107,16 @@ class OpenApiConfig {
                             status = HttpStatus.CONFLICT.value(),
                             error = HttpStatus.CONFLICT.reasonPhrase,
                             message = "Short code 'example-code' already exists.",
+                            path = "/example-endpoint"
+                        )
+                    )
+                    .addResponses(
+                        "Gone",
+                        errorResponse(
+                            description = "The link's recovery period has expired and it can no longer be restored.",
+                            status = HttpStatus.GONE.value(),
+                            error = HttpStatus.GONE.reasonPhrase,
+                            message = "Link with code 'example-code' can no longer be restored because its ${LinkRecoveryPolicy.RETENTION_PERIOD_DAYS} days recovery period has expired.",
                             path = "/example-endpoint"
                         )
                     )

@@ -1,5 +1,6 @@
 package com.gblrod.encurtaai.controller
 
+import com.gblrod.encurtaai.doc.annotation.ApiCommonResponses
 import com.gblrod.encurtaai.dto.LoginRequestDto
 import com.gblrod.encurtaai.dto.LoginResponseDto
 import com.gblrod.encurtaai.service.AuthService
@@ -36,6 +37,7 @@ class AuthController(
             endpoints that require administrator authentication.
         """,
     )
+    @ApiCommonResponses
     @ApiResponses(
         value = [
             ApiResponse(
@@ -55,14 +57,6 @@ class AuthController(
             ApiResponse(
                 responseCode = "401",
                 ref = "#/components/responses/Unauthorized"
-            ),
-            ApiResponse(
-                responseCode = "429",
-                ref = "#/components/responses/TooManyRequests"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                ref = "#/components/responses/InternalServerError"
             )
         ]
     )

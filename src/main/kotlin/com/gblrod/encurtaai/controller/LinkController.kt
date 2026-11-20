@@ -1,5 +1,7 @@
 package com.gblrod.encurtaai.controller
 
+import com.gblrod.encurtaai.doc.annotation.ApiAdminResponses
+import com.gblrod.encurtaai.doc.annotation.ApiCommonResponses
 import com.gblrod.encurtaai.dto.CreateLinkRequestDto
 import com.gblrod.encurtaai.dto.LinkResponseDto
 import com.gblrod.encurtaai.dto.PageResponseDto
@@ -39,6 +41,7 @@ class LinkController(
             Requires administrator authentication. 
         """,
     )
+    @ApiAdminResponses
     @ApiResponses(
         value = [
             ApiResponse(
@@ -56,21 +59,8 @@ class LinkController(
                 ref = "#/components/responses/BadRequest"
             ),
             ApiResponse(
-                responseCode = "401",
-                ref = "#/components/responses/Unauthorized"
-            ),
-            
-            ApiResponse(
                 responseCode = "409",
                 ref = "#/components/responses/Conflict"
-            ),
-            ApiResponse(
-                responseCode = "429",
-                ref = "#/components/responses/TooManyRequests"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                ref = "#/components/responses/InternalServerError"
             )
         ]
     )
@@ -92,6 +82,7 @@ class LinkController(
             This endpoint is publicly accessible.
         """
     )
+    @ApiCommonResponses
     @ApiResponses(
         value = [
             ApiResponse(
@@ -102,14 +93,6 @@ class LinkController(
             ApiResponse(
                 responseCode = "400",
                 ref = "#/components/responses/BadRequest"
-            ),
-            ApiResponse(
-                responseCode = "429",
-                ref = "#/components/responses/TooManyRequests"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                ref = "#/components/responses/InternalServerError"
             )
         ]
     )
@@ -158,25 +141,13 @@ class LinkController(
         Requires administrator authentication.
     """
     )
+    @ApiAdminResponses
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
                 description = "Paginated list of deleted shortened URLs.",
                 useReturnTypeSchema = true
-            ),
-            ApiResponse(
-                responseCode = "401",
-                ref = "#/components/responses/Unauthorized"
-            ),
-            
-            ApiResponse(
-                responseCode = "429",
-                ref = "#/components/responses/TooManyRequests"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                ref = "#/components/responses/InternalServerError"
             )
         ]
     )
@@ -207,6 +178,7 @@ class LinkController(
             This endpoint is publicly accessible.
         """
     )
+    @ApiCommonResponses
     @ApiResponses(
         value = [
             ApiResponse(
@@ -222,14 +194,6 @@ class LinkController(
             ApiResponse(
                 responseCode = "404",
                 ref = "#/components/responses/NotFound"
-            ),
-            ApiResponse(
-                responseCode = "429",
-                ref = "#/components/responses/TooManyRequests"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                ref = "#/components/responses/InternalServerError"
             )
         ]
     )
@@ -256,6 +220,7 @@ class LinkController(
             Requires administrator authentication.
         """
     )
+    @ApiAdminResponses
     @ApiResponses(
         value = [
             ApiResponse(
@@ -273,25 +238,12 @@ class LinkController(
                 ref = "#/components/responses/BadRequest"
             ),
             ApiResponse(
-                responseCode = "401",
-                ref = "#/components/responses/Unauthorized"
-            ),
-            
-            ApiResponse(
                 responseCode = "404",
                 ref = "#/components/responses/NotFound"
             ),
             ApiResponse(
                 responseCode = "409",
                 ref = "#/components/responses/Conflict"
-            ),
-            ApiResponse(
-                responseCode = "429",
-                ref = "#/components/responses/TooManyRequests"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                ref = "#/components/responses/InternalServerError"
             )
         ]
     )
@@ -320,6 +272,7 @@ class LinkController(
         Requires administrator authentication.
     """
     )
+    @ApiAdminResponses
     @ApiResponses(
         value = [
             ApiResponse(
@@ -333,25 +286,12 @@ class LinkController(
                 ]
             ),
             ApiResponse(
-                responseCode = "401",
-                ref = "#/components/responses/Unauthorized"
-            ),
-            
-            ApiResponse(
                 responseCode = "404",
                 ref = "#/components/responses/NotFound"
             ),
             ApiResponse(
                 responseCode = "410",
-                description = "The ${LinkRecoveryPolicy.RETENTION_PERIOD_DAYS} days recovery period has expired."
-            ),
-            ApiResponse(
-                responseCode = "429",
-                ref = "#/components/responses/TooManyRequests"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                ref = "#/components/responses/InternalServerError"
+                ref = "#/components/responses/Gone"
             )
         ]
     )
@@ -378,6 +318,7 @@ class LinkController(
             Requires administrator authentication.
         """
     )
+    @ApiAdminResponses
     @ApiResponses(
         value = [
             ApiResponse(
@@ -385,21 +326,8 @@ class LinkController(
                 description = "Shortened URL deleted successfully. No content is returned."
             ),
             ApiResponse(
-                responseCode = "401",
-                ref = "#/components/responses/Unauthorized"
-            ),
-            
-            ApiResponse(
                 responseCode = "404",
                 ref = "#/components/responses/NotFound"
-            ),
-            ApiResponse(
-                responseCode = "429",
-                ref = "#/components/responses/TooManyRequests"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                ref = "#/components/responses/InternalServerError"
             )
         ]
     )
