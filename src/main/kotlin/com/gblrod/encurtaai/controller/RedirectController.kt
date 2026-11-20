@@ -1,5 +1,6 @@
 package com.gblrod.encurtaai.controller
 
+import com.gblrod.encurtaai.doc.annotation.ApiCommonResponses
 import com.gblrod.encurtaai.service.LinkService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -31,6 +32,7 @@ class RedirectController(
             Open the shortened URL directly in a browser to test the redirect.
         """
     )
+    @ApiCommonResponses
     @ApiResponses(
         value = [
             ApiResponse(
@@ -47,14 +49,6 @@ class RedirectController(
             ApiResponse(
                 responseCode = "404",
                 ref = "#/components/responses/NotFound"
-            ),
-            ApiResponse(
-                responseCode = "429",
-                ref = "#/components/responses/TooManyRequests"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                ref = "#/components/responses/InternalServerError"
             )
         ]
     )

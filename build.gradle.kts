@@ -9,7 +9,7 @@ plugins {
 extra["commons-lang3.version"] = libs.versions.commons.lang3.get()
 
 group = "com.gblrod.encurtaai"
-version = "1.1.0"
+version = "1.3.1"
 description = "A URL shortening REST API"
 
 java {
@@ -65,6 +65,10 @@ allOpen {
     annotation("jakarta.persistence.Entity")
     annotation("jakarta.persistence.MappedSuperclass")
     annotation("jakarta.persistence.Embeddable")
+}
+
+springBoot {
+    buildInfo()
 }
 
 tasks.withType<Test> {
