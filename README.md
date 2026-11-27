@@ -130,6 +130,10 @@ The project includes unit tests and HTTP security integration tests to validate 
 * Access count and last access timestamp updates.
 * Rate limiting and independent request limits per IP.
 * HTTP authorization behavior with and without a valid JWT.
+* Soft deletion and exclusion of deleted links from active listings.
+* Paginated trash retrieval, including empty trash.
+* Link restoration within the 30 days recovery period, preserving existing link data.
+* Rejection of restoration attempts for expired or nonexistent links, and attempts to delete already deleted links.
 
 **Run tests locally**
 
